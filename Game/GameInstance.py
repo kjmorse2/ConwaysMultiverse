@@ -39,12 +39,14 @@ class GameInstance:
         Raises:
             ValueError: If starting cells are out of bounds or if any neighbor count > 8.
         """
+        self.device = "cpu" # torch.device("cuda" if torch.cuda.is_available() else "cpu")
         
         # 3x3 convolution kernel for counting neighbors (center cell excluded)
         self.kernel = torch.tensor(
             [[1, 1, 1], [1, 0, 1], [1, 1, 1]],
             dtype=torch.int32,
             requires_grad=False,
+            device = self.device,
         ).unsqueeze(0).unsqueeze(0)
 
         self.grid_height = grid_height
@@ -68,6 +70,7 @@ class GameInstance:
             torch.zeros(grid_height, grid_width),
             dtype=torch.int32,
             requires_grad=False,
+            device =self.device
         )
         for x, y in starting_cells:
             self.game_board[x, y] = 1

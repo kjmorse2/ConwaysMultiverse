@@ -1,0 +1,3 @@
+# PySide6 GUI Framework
+PySide6
+

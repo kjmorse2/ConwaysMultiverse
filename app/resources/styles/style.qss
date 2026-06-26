@@ -1,0 +1,61 @@
+/* 
+ * Application Stylesheet
+ * Customize colors, fonts, and widget appearance here
+ */
+
+QMainWindow {
+    background-color: #f0f0f0;
+}
+
+QMenuBar {
+    background-color: #ffffff;
+    color: #000000;
+    border-bottom: 1px solid #cccccc;
+}
+
+QMenuBar::item:selected {
+    background-color: #e0e0e0;
+}
+
+QMenu {
+    background-color: #ffffff;
+    color: #000000;
+    border: 1px solid #cccccc;
+}
+
+QMenu::item:selected {
+    background-color: #0078d7;
+    color: #ffffff;
+}
+
+QPushButton {
+    background-color: #0078d7;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-weight: bold;
+}
+
+QPushButton:hover {
+    background-color: #106ebe;
+}
+
+QPushButton:pressed {
+    background-color: #005a9e;
+}
+
+QStatusBar {
+    background-color: #ffffff;
+    color: #000000;
+    border-top: 1px solid #cccccc;
+}
+
+QLabel {
+    color: #000000;
+}
+
+QWidget {
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-size: 10pt;
+}
