@@ -20,8 +20,7 @@ class GameInstance:
         self,
         allow_birth: list[int] = None,
         allow_survival: list[int] = None,
-        grid_height: int = 10,
-        grid_width: int = 10,
+        grid_size: int = 21,
         starting_cells: list[tuple[int, int]] = None,
     ):
         """
@@ -49,25 +48,27 @@ class GameInstance:
             device = self.device,
         ).unsqueeze(0).unsqueeze(0)
 
-        self.grid_height = grid_height
-        self.grid_width = grid_width
+        self.grid_size = grid_size
 
         # Validate starting cells are within bounds
-        for coord in starting_cells:
-            if coord[0] < 0 or coord[0] >= self.grid_width:
-                raise ValueError(
-                    f"Invalid starting cell, x coordinate: {coord[0]} "
-                    f"is not in range [0, {self.grid_width - 1}]"
-                )
-            if coord[1] < 0 or coord[1] >= self.grid_width:
-                raise ValueError(
-                    f"Invalid starting cell, y coordinate: {coord[1]} "
-                    f"is not in range [0, {self.grid_width - 1}]"
-                )
+        if starting_cells:
+            for coord in starting_cells:
+                if coord[0] < 0 or coord[0] >= self.grid_size:
+                    raise ValueError(
+                        f"Invalid starting cell, x coordinate: {coord[0]} "
+                        f"is not in range [0, {self.grid_size - 1}]"
+                    )
+                if coord[1] < 0 or coord[1] >= self.grid_size:
+                    raise ValueError(
+                        f"Invalid starting cell, y coordinate: {coord[1]} "
+                        f"is not in range [0, {self.grid_size - 1}]"
+                    )
+        else:
+            starting_cells = []
 
         # Initialize game board with zeros and set starting cells to 1
-        self.game_board = torch.tensor(
-            torch.zeros(grid_height, grid_width),
+        self.game_board = torch.zeros(
+            size = (grid_size, grid_size),
             dtype=torch.int32,
             requires_grad=False,
             device =self.device
