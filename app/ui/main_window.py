@@ -1,6 +1,4 @@
-"""
-Main application window implementation.
-"""
+"""Main application window and layout composition for the PySide UI."""
 
 from PySide6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, 
@@ -17,10 +15,14 @@ from Game.GameInstance import GameInstance
 
 
 class MainWindow(QMainWindow):
-    """Main application window with square aspect ratio."""
+    """Top-level application window with a square-resize constraint.
+
+    The central layout contains a playable grid in the middle and placeholder
+    side panels for future controls and status content.
+    """
     
     def __init__(self):
-        """Initialize the main window."""
+        """Initialize window metadata, layout, and standard UI elements."""
         super().__init__()
         self.setWindowTitle(AppConfig.APP_NAME)
         self.setGeometry(100, 100, AppConfig.WINDOW_WIDTH, AppConfig.WINDOW_HEIGHT)
@@ -35,7 +37,11 @@ class MainWindow(QMainWindow):
         self.apply_styles()
 
     def resizeEvent(self, event):
-        """Enforce square aspect ratio when window is resized."""
+        """Enforce a square window aspect ratio during user resize.
+
+        Args:
+            event: Qt resize event containing the proposed dimensions.
+        """
         super().resizeEvent(event)
         # Get the new size
         new_size = event.size()
@@ -45,15 +51,15 @@ class MainWindow(QMainWindow):
         self.resize(size, size)
     
     def setup_ui(self):
-        """Set up the main UI layout."""
-        # Create central widget and main layout
+        """Create the full central layout and wire widget interactions."""
+        # Create the root central widget and top-level vertical layout.
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         main_layout = QVBoxLayout(central_widget)
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(5)
         
-        # Top section - buttons
+        # Top toolbar row for immediate actions.
         button_layout = QHBoxLayout()
         
         btn_action = QPushButton("Action Button")
@@ -65,7 +71,7 @@ class MainWindow(QMainWindow):
         
         main_layout.addLayout(button_layout, 0)
         
-        # Middle section with grid and side panels
+        # Middle section combines placeholder regions around the game grid.
         middle_layout = QVBoxLayout()
         middle_layout.setContentsMargins(0, 0, 0, 0)
         middle_layout.setSpacing(5)
@@ -74,7 +80,7 @@ class MainWindow(QMainWindow):
         top_placeholder = self.create_placeholder("Top Panel")
         middle_layout.addWidget(top_placeholder, 1)
         
-        # Center layout - Left, GameGrid, Right
+        # Center row: left panel, grid, right panel.
         center_layout = QHBoxLayout()
         center_layout.setContentsMargins(0, 0, 0, 0)
         center_layout.setSpacing(5)
@@ -83,7 +89,7 @@ class MainWindow(QMainWindow):
         left_placeholder = self.create_placeholder("Left Panel")
         center_layout.addWidget(left_placeholder, 1)
         
-        # Game grid (takes more space)
+        # Grid receives a larger stretch factor than side placeholders.
         game_grid = GameGrid()
         center_layout.addWidget(game_grid, 3)
         
@@ -97,6 +103,7 @@ class MainWindow(QMainWindow):
         bottom_placeholder = self.create_placeholder("Bottom Panel")
         middle_layout.addWidget(bottom_placeholder, 1)
 
+        # Wire the action button to step the simulation by one generation.
         btn_action.clicked.connect(game_grid.step_game)
 
         main_layout.addLayout(middle_layout, 1)
@@ -111,8 +118,6 @@ class MainWindow(QMainWindow):
         Returns:
             QWidget: A placeholder widget with the given title.
         """
-        from PySide6.QtWidgets import QLabel
-        
         placeholder = QWidget()
         placeholder.setStyleSheet("background-color: #e8e8e8; border: 1px solid #999;")
         layout = QVBoxLayout(placeholder)
@@ -122,7 +127,7 @@ class MainWindow(QMainWindow):
         return placeholder
     
     def create_menu_bar(self):
-        """Create the application menu bar."""
+        """Create and populate the application menu bar."""
         menubar = self.menuBar()
         
         # File menu
@@ -147,12 +152,12 @@ class MainWindow(QMainWindow):
         help_menu.addAction(about_action)
     
     def create_status_bar(self):
-        """Create the status bar."""
+        """Create the status bar and set an initial ready message."""
         status_bar = self.statusBar()
         status_bar.showMessage("Ready")
     
     def apply_styles(self):
-        """Apply stylesheets to the application."""
+        """Apply the shared application stylesheet when available."""
         stylesheet = load_stylesheet("style.qss")
         if stylesheet:
             self.setStyleSheet(stylesheet)

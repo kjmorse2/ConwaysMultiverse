@@ -31,14 +31,14 @@ class GameInstance:
                         Defaults to [3] (standard Game of Life).
             allow_survival: List of neighbor counts that allow live cells to survive.
                            Defaults to [2, 3] (standard Game of Life).
-            grid_height: Height of the game board. Defaults to 10.
-            grid_width: Width of the game board. Defaults to 10.
+            grid_size: Side length of the square game board.
             starting_cells: List of (x, y) tuples for initially live cells.
         
         Raises:
             ValueError: If starting cells are out of bounds or if any neighbor count > 8.
         """
-        self.device = "cpu" # torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        # Keep tensors on CPU by default for predictable desktop behavior.
+        self.device = "cpu"  # torch.device("cuda" if torch.cuda.is_available() else "cpu")
         
         # 3x3 convolution kernel for counting neighbors (center cell excluded)
         self.kernel = torch.tensor(
@@ -48,6 +48,7 @@ class GameInstance:
             device = self.device,
         ).unsqueeze(0).unsqueeze(0)
 
+        # Store board dimension so rendering/UI can scale to cell count.
         self.grid_size = grid_size
 
         # Validate starting cells are within bounds
@@ -66,12 +67,12 @@ class GameInstance:
         else:
             starting_cells = []
 
-        # Initialize game board with zeros and set starting cells to 1
+        # Initialize board and activate requested seed cells.
         self.game_board = torch.zeros(
-            size = (grid_size, grid_size),
+            size=(grid_size, grid_size),
             dtype=torch.int32,
             requires_grad=False,
-            device =self.device
+            device=self.device
         )
         for x, y in starting_cells:
             self.game_board[x, y] = 1
@@ -109,7 +110,7 @@ class GameInstance:
         Uses 2D convolution to compute neighbor counts for each cell, then applies
         the birth and survival rules to determine the next generation state.
         """
-        # Add batch and channel dimensions for conv2d: (1, 1, height, width)
+        # Add batch/channel dimensions expected by conv2d: (N, C, H, W).
         board_4d = self.game_board.unsqueeze(0).unsqueeze(0)
         
         # Convolve with kernel to get neighbor counts for each cell
@@ -121,7 +122,7 @@ class GameInstance:
         # Live cells survive if neighbor count is in survival_rule
         survive = self.game_board & (self.survival_rule[neighbor_counts])
         
-        # Update board: cells that are born OR survive remain alive
+        # Update board: a cell is alive if it is born or survives this step.
         self.game_board = (born | survive)
 
     def get_game_board(self):
@@ -129,7 +130,16 @@ class GameInstance:
         Retrieve the current state of the game board.
         
         Returns:
-            torch.Tensor: A 2D tensor of shape (grid_height, grid_width) with values
-                         1 for live cells and 0 for dead cells.
+            torch.Tensor: A 2D tensor of shape (grid_size, grid_size) with values
+            1 for live cells and 0 for dead cells.
         """
         return self.game_board.squeeze()
+
+    def flip_cell(self, x, y):
+        """Toggle a single cell between alive (1) and dead (0).
+
+        Args:
+            x: Row index of the target cell.
+            y: Column index of the target cell.
+        """
+        self.game_board[x, y] = 1 if self.game_board[x, y] == 0 else 0

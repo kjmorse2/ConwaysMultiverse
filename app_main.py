@@ -10,7 +10,11 @@ from app.config.config import AppConfig
 
 
 def main():
-    """Initialize and run the application."""
+    """Initialize and run the PySide application.
+
+    The function creates the Qt application object, applies application
+    metadata, displays the main window, and starts the Qt event loop.
+    """
     app = QApplication(sys.argv)
     
     # Set application metadata
