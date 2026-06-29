@@ -1,8 +1,8 @@
 """Main application window and layout composition for the PySide UI."""
 
 from PySide6.QtWidgets import (
-    QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, 
-    QMenuBar, QMenu, QPushButton, QStatusBar, QLabel
+    QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
+    QMenuBar, QMenu, QPushButton, QStatusBar, QLabel, QSpinBox
 )
 from PySide6.QtCore import Qt, QSize
 from PySide6.QtGui import QAction
@@ -88,10 +88,16 @@ class MainWindow(QMainWindow):
         # Left placeholder
         left_placeholder = self.create_placeholder("Left Panel")
         center_layout.addWidget(left_placeholder, 1)
+        grid_size_spinner = QSpinBox(self)
+        grid_size_spinner.setMinimum(5)
+        grid_size_spinner.setMaximum(50)
+        self.game_grid = GameGrid()
+        grid_size_spinner.valueChanged.connect(lambda v:
+                                               self.game_grid.set_grid_size(v))
+        center_layout.addWidget(grid_size_spinner)
         
         # Grid receives a larger stretch factor than side placeholders.
-        game_grid = GameGrid()
-        center_layout.addWidget(game_grid, 3)
+        center_layout.addWidget(self.game_grid, 3)
         
         # Right placeholder
         right_placeholder = self.create_placeholder("Right Panel")
@@ -104,7 +110,7 @@ class MainWindow(QMainWindow):
         middle_layout.addWidget(bottom_placeholder, 1)
 
         # Wire the action button to step the simulation by one generation.
-        btn_action.clicked.connect(game_grid.step_game)
+        btn_action.clicked.connect(self.game_grid.step_game)
 
         main_layout.addLayout(middle_layout, 1)
     

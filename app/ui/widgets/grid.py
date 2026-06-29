@@ -14,16 +14,32 @@ class GameGrid(QWidget):
     simulation cell, and exposes a click callback hook for cell interactions.
     """
     
-    def __init__(self, parent=None):
+    def __init__(self,
+                 parent=None,
+                 allow_birth: list[int] = None,
+                 allow_survival: list[int] = None,
+                 grid_size: int = 21,
+                 starting_cells: list[tuple[int, int]] = None):
         """Initialize the game grid widget.
-
         Args:
             parent: Optional Qt parent widget.
         """
         super().__init__(parent)
-        self.game_instance = GameInstance(starting_cells=[(5, 5), (5, 4), (5, 3)])
+
+        self.allow_birth = allow_birth
+        self.allow_survival = allow_survival
+        self.grid_size = grid_size
+        self.starting_cells = starting_cells
+        self.game_instance = None
+        self.new_game()
         self.cell_rects = []
         self.setup_ui()
+
+    def new_game(self):
+        self.game_instance = GameInstance(starting_cells=[(5, 5), (5, 4), (5, 3)],
+                                          allow_birth=self.allow_birth,
+                                          allow_survival=self.allow_survival,
+                                          grid_size=self.grid_size)
 
     def setup_ui(self):
         """Configure base visual behavior and layout policy."""
@@ -76,6 +92,11 @@ class GameGrid(QWidget):
                     self.on_grid_clicked(row_index, col_index)
                     return
         super().mousePressEvent(event)
+
+    def set_grid_size(self, size : int):
+        self.grid_size = size
+        self.new_game()
+        self.update()
 
     def on_grid_clicked(self, row: int, col: int):
         """Placeholder click handler for custom interaction behavior.
